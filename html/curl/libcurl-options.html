@@ -1,0 +1,16 @@
+<h2 id="set-handle-options">Set handle options</h2>
+<p>You set options in the easy handle to control how that transfer is going to be done, or in some cases you can actually set options and modify the transfer’s behavior while it is in progress. You set options with <code>curl_easy_setopt()</code> and you provide the handle, the option you want to set and the argument to the option. All options take exactly one argument and you must always pass exactly three parameters to the curl_easy_setopt() calls.</p>
+<p>Since the curl_easy_setopt() call accepts several hundred different options and the various options accept a variety of different types of arguments, it is important to read up on the specifics and provide exactly the argument type the specific option supports and expects. Passing in the wrong type can lead to unexpected side-effects or hard to understand hiccups.</p>
+<p>The perhaps most important option that every transfer needs, is the URL. libcurl cannot perform a transfer without knowing which URL it concerns so you must tell it. The URL option name is <code>CURLOPT_URL</code> as all options are prefixed with <code>CURLOPT_</code> and then the descriptive name—all using uppercase letters. An example line setting the URL to get the “http://example.com” HTTP contents could look like:</p>
+<pre><code>CURLcode ret = curl_easy_setopt(easy, CURLOPT_URL, &quot;http://example.com&quot;);</code></pre>
+<p>Again: this only sets the option in the handle. It will not do the actual transfer or anything. It will basically just tell libcurl to copy the string and if that works it returns OK.</p>
+<p>It is, of course, good form to check the return code to see that nothing went wrong.</p>
+<h3 id="setting-numerical-options">Setting numerical options</h3>
+<p>Since curl_easy_setopt() is a vararg function where the 3rd argument can use different types depending on the situation, normal C language type conversion cannot be done. So you <strong>must</strong> make sure that you truly pass a ‘long’ and not an ‘int’ if the documentation tells you so. On architectures where they are the same size, you may not get any problems but not all work like that. Similarly, for options that accept a ‘curl_off_t’ type, it is <strong>crucial</strong> that you pass in an argument using that type and no other.</p>
+<p>Enforce a long:</p>
+<pre><code>curl_easy_setopt(handle, CURLOPT_TIMEOUT, 5L); /* 5 seconds timeout */</code></pre>
+<p>Enforce a curl_off_t:</p>
+<pre><code>curl_off_t no_larger_than = 0x50000;
+curl_easy_setopt(handle, CURLOPT_MAXFILE_LARGE, no_larger_than);</code></pre>
+<h3 id="get-handle-options">Get handle options</h3>
+<p>No, there’s no general method to extract the same information you previously set with <code>curl_easy_setopt()</code>! If you need to be able to extract the information again that you set earlier, then we encourage you to keep track of that data yourself in your application.</p>

@@ -1,0 +1,52 @@
+<h1 id="build-to-use-a-tls-library">Build to use a TLS library</h1>
+<p>To make curl support TLS based protocols, such as HTTPS, FTPS, SMTPS, POP3S, IMAPS and more, you need to build with a third-party TLS library since curl does not implement the TLS protocol itself.</p>
+<p>curl is written to work with a large number of TLS libraries:</p>
+<ul class="incremental">
+<li>BoringSSL</li>
+<li>GSKit (OS/400 specific)</li>
+<li>GnuTLS</li>
+<li>NSS</li>
+<li>OpenSSL</li>
+<li>Secure Transport (native macOS)</li>
+<li>WolfSSL</li>
+<li>MesaLink</li>
+<li>libressl</li>
+<li>mbedTLS</li>
+<li>Schannel (native Windows)</li>
+</ul>
+<p>When you build curl and libcurl to use one of these libraries, it is important that you have the library and its include headers installed on your build machine.</p>
+<h2 id="configure">configure</h2>
+<p>Below, you will learn how to tell configure to use the different libraries. Note that for all libraries except OpenSSL and its siblings, you must <em>disable</em> the check for OpenSSL by using <code>--without-ssl</code>.</p>
+<h3 id="openssl-boringssl-libressl">OpenSSL, BoringSSL, libressl</h3>
+<pre><code>./configure</code></pre>
+<p>configure will detect OpenSSL in its default path by default. You can optionally point configure to a custom install path prefix where it can find openssl:</p>
+<pre><code>./configure --with-ssl=/home/user/installed/openssl</code></pre>
+<p>The alternatives <a href="building-boringssl.md">BoringSSL</a> and libressl look similar enough that configure will detect them the same way as OpenSSL but it will use some additional measures to find out which of the particular flavors it is using.</p>
+<h3 id="gnutls">GnuTLS</h3>
+<pre><code>./configure --with-gnutls --without-ssl</code></pre>
+<p>configure will detect GnuTLS in its default path by default. You can optionally point configure to a custom install path prefix where it can find gnutls:</p>
+<pre><code>./configure --with-gnutls=/home/user/installed/gnutls --without-ssl</code></pre>
+<h3 id="nss">NSS</h3>
+<pre><code>./configure --with-nss --without-ssl</code></pre>
+<p>configure will detect NSS in its default path by default. You can optionally point configure to a custom install path prefix where it can find nss:</p>
+<pre><code>./configure --with-nss=/home/user/installed/nss --without-ssl</code></pre>
+<h3 id="wolfssl">WolfSSL</h3>
+<pre><code>./configure --with-wolfssl --without-ssl</code></pre>
+<p>configure will detect WolfSSL in its default path by default. You can optionally point configure to a custom install path prefix where it can find WolfSSL:</p>
+<pre><code>./configure --with-wolfssl=/home/user/installed/wolfssl --without-ssl</code></pre>
+<h3 id="mesalink">MesaLink</h3>
+<pre><code>./configure --with-mesalink --without-ssl</code></pre>
+<p>configure will detect MesaLink in its default path by default. You can optionally point configure to a custom install path prefix where it can find mesalink:</p>
+<pre><code>./configure --with-mesalink=/home/user/installed/mesalink --without-ssl</code></pre>
+<h3 id="mbedtls">mbedTLS</h3>
+<pre><code>./configure --with-mbedtls --without-ssl</code></pre>
+<p>configure will detect mbedTLS in its default path by default. You can optionally point configure to a custom install path prefix where it can find mbedTLS:</p>
+<pre><code>./configure --with-mbedtls=/home/user/installed/mbedtls --without-ssl</code></pre>
+<h3 id="secure-transport">Secure Transport</h3>
+<pre><code>./configure --with-darwinssl --without-ssl</code></pre>
+<p>(DarwinSSL is an alternative name for Secure Transport) configure will detect Secure Transport in its default path by default. You can optionally point configure to a custom install path prefix where it can find DarwinSSL:</p>
+<pre><code>./configure --with-darwinssl=/home/user/installed/darwinssl --without-ssl</code></pre>
+<h3 id="schannel">Schannel</h3>
+<pre><code>./configure --with-schannel --without-ssl</code></pre>
+<p>configure will detect Schannel in its default path by default.</p>
+<p>(WinSSL was previously an alternative name for Schannel, and earlier curl versions instead needed <code>--with-winssl</code>)</p>

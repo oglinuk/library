@@ -1,0 +1,48 @@
+<h1 id="the-protocols-curl-supports">The protocols curl supports</h1>
+<p>curl supports about 22 protocols. We say “about” because it depends on how you count and what you consider to be distinctly different protocols.</p>
+<h2 id="dict">DICT</h2>
+<p>DICT is a dictionary network protocol, it allows clients to ask dictionary servers about a meaning or explanation for words. See RFC 2229. Dict servers and clients use TCP port 2628.</p>
+<h2 id="file">FILE</h2>
+<p>FILE is not actually a “network” protocol. It is a URL scheme that allows you to tell curl to get a file from the local file system instead of getting it over the network from a remote server. See RFC 1738.</p>
+<h2 id="ftp">FTP</h2>
+<p>FTP stands for File Transfer Protocol and is an old (originates in the early 1970s) way to transfer files back and forth between a client and a server. See RFC 959. It has been extended greatly over the years. FTP servers and clients use TCP port 21 plus one more port, though the second one is usually dynamically established during communication.</p>
+<p>See the external page <a href="https://daniel.haxx.se/docs/ftp-vs-http.html">FTP vs HTTP</a> for how it differs to HTTP.</p>
+<h2 id="ftps">FTPS</h2>
+<p>FTPS stands for Secure File Transfer Protocol. It follows the tradition of appending an ‘S’ to the protocol name to signify that the protocol is done like normal FTP but with an added SSL/TLS security layer. See RFC 4217.</p>
+<p>This protocol is problematic to use through firewalls and other network equipment.</p>
+<h2 id="gopher">GOPHER</h2>
+<p>Designed for “distributing, searching, and retrieving documents over the Internet”, Gopher is somewhat of the grand father to HTTP as HTTP has mostly taken over completely for the same use cases. See RFC 1436. Gopher servers and clients use TCP port 70.</p>
+<h2 id="http">HTTP</h2>
+<p>The Hypertext Transfer Protocol, HTTP, is the most widely used protocol for transferring data on the web and over the Internet. See RFC 7230 for HTTP/1.1 and RFC 7540 for <a href="http-http2.md">HTTP/2</a>. HTTP servers and clients use TCP port 80.</p>
+<h2 id="https">HTTPS</h2>
+<p>Secure HTTP is HTTP done over an SSL/TLS connection. See RFC 2818. HTTPS servers and clients use TCP port 443, unless they speak <a href="http-http3.md">HTTP/3</a> which then uses QUIC and is done over UDP…</p>
+<h2 id="imap">IMAP</h2>
+<p>The Internet Message Access Protocol, IMAP, is a protocol for accessing, controlling and “reading” email. See RFC 3501. IMAP servers and clients use TCP port 143. Whilst connections to the server start out as cleartext, SSL/TLS communication may be supported by the client explicitly requesting to upgrade the connection using the <code>STARTTLS</code> command. See RFC 2595.</p>
+<h2 id="imaps">IMAPS</h2>
+<p>Secure IMAP is IMAP done over an SSL/TLS connection. Such connections implicitly start out using SSL/TLS and as such servers and clients use TCP port 993 to communicate with each other. See RFC 8314.</p>
+<h2 id="ldap">LDAP</h2>
+<p>The Lightweight Directory Access Protocol, LDAP, is a protocol for accessing and maintaining distributed directory information. Basically a database lookup. See RFC 4511. LDAP servers and clients use TCP port 389.</p>
+<h2 id="ldaps">LDAPS</h2>
+<p>Secure LDAP is LDAP done over an SSL/TLS connection.</p>
+<h2 id="pop3">POP3</h2>
+<p>The Post Office Protocol version 3 (POP3) is a protocol for retrieving email from a server. See RFC 1939. POP3 servers and clients use TCP port 110. Whilst connections to the server start out as cleartext, SSL/TLS communication may be supported by the client explicitly requesting to upgrade the connection using the <code>STLS</code> command. See RFC 2595.</p>
+<h2 id="pop3s">POP3S</h2>
+<p>Secure POP3 is POP3 done over an SSL/TLS connection. Such connections implicitly start out using SSL/TLS and as such servers and clients use TCP port 995 to communicate with each other. See RFC 8314.</p>
+<h2 id="rtmp">RTMP</h2>
+<p>The Real-Time Messaging Protocol (RTMP) is a protocol for streaming audio, video and data. RTMP servers and clients use TCP port 1935.</p>
+<h2 id="rtsp">RTSP</h2>
+<p>The Real Time Streaming Protocol (RTSP) is a network control protocol to control streaming media servers. See RFC 2326. RTSP servers and clients use TCP and UDP port 554.</p>
+<h2 id="scp">SCP</h2>
+<p>The Secure Copy (SCP) protocol is designed to copy files to and from a remote SSH server. SCP servers and clients use TCP port 22.</p>
+<h2 id="sftp">SFTP</h2>
+<p>The SSH File Transfer Protocol (SFTP) that provides file access, file transfer, and file management over a reliable data stream. SFTP servers and clients use TCP port 22.</p>
+<h2 id="smb">SMB</h2>
+<p>The Server Message Block (SMB) protocol is also known as CIFS. It is an application-layer network protocol mainly used for providing shared access to files, printers, and serial ports and miscellaneous communications between nodes on a network. SMB servers and clients use TCP port 445.</p>
+<h2 id="smtp">SMTP</h2>
+<p>The Simple Mail Transfer Protocol (SMTP) is a protocol for email transmission. See RFC 5321. SMTP servers and clients use TCP port 25. Whilst connections to the server start out as cleartext, SSL/TLS communication may be supported by the client explicitly requesting to upgrade the connection using the <code>STARTTLS</code> command. See RFC 3207.</p>
+<h2 id="smtps">SMTPS</h2>
+<p>Secure SMTP, sometimes called SSMTP, is SMTP done over an SSL/TLS connection. Such connections implicitly start out using SSL/TLS and as such servers and clients use TCP port 465 to communicate with each other. See RFC 8314.</p>
+<h2 id="telnet">TELNET</h2>
+<p>TELNET is an application layer protocol used over networks to provide a bidirectional interactive text-oriented communication facility using a virtual terminal connection. See RFC 854. TELNET servers and clients use TCP port 23.</p>
+<h2 id="tftp">TFTP</h2>
+<p>The Trivial File Transfer Protocol (TFTP) is a protocol for doing simple file transfers over UDP to get a file from or put a file onto a remote host. TFTP servers and clients use UDP port 69.</p>

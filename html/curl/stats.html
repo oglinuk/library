@@ -1,0 +1,8 @@
+<p>#!/bin/sh</p>
+<p>abook=<code>grep -o '[a-z0-9-]*\.md' SUMMARY.md | grep -v index.md</code> book=“README.md $abook”</p>
+<p>tbd=<code>cat $book | grep -c ^TBD</code> titles=<code>cat $book | grep -c ^#</code> content=<code>echo "$titles-$tbd" | bc</code></p>
+<p>words=<code>cat $book | wc -w</code> lines=<code>cat $book | wc -l</code></p>
+<p>echo “Section titles: $titles” echo “Sections with content: $content” echo “Sections to go: $tbd” echo “Words: $words” echo “Lines: $lines”</p>
+<p>complete=<code>echo "scale=1; $content*100/$titles" | bc</code> secsize=<code>echo "$words/$content" | bc</code></p>
+<p>echo “Words per section: $secsize” echo “Completeness: $complete %”</p>
+<p>left=<code>echo "$tbd * $secsize" | bc</code> total=<code>echo "$secsize * $titles" | bc</code> echo “Estimated $left words left until $total”</p>

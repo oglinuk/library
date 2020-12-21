@@ -1,0 +1,8 @@
+<h2 id="web-site-source-code">Web site source code</h2>
+<p>Most of the curl web site is also available in a public git repository, although separate from the source code repository since it generally is not interesting to the same people and we can maintain a different list of people that have push rights, etc.</p>
+<p>The web site git repository is available on Github at this URL: <a href="https://github.com/curl/curl-www">https://github.com/curl/curl-www</a> and you can clone a copy of the web code like this:</p>
+<pre><code>git clone https://github.com/curl/curl-www.git</code></pre>
+<h3 id="building-the-web">Building the web</h3>
+<p>The web site is a custom-made setup that mostly builds static HTML files from a set of source files. The sources files are preprocessed with what is basically a souped-up C preprocessor called <a href="https://daniel.haxx.se/projects/fcpp/">fcpp</a> and a set of perl scripts. The man pages get converted to HTML with <a href="https://daniel.haxx.se/projects/roffit/">roffit</a>. Make sure fcpp, perl, roffit, make and curl are all in your $PATH.</p>
+<p>Once you have cloned the git repository the first time, invoke <code>sh bootstrap.sh</code> once to get a symlink and some some initial local files setup, and then you can build the web site locally by invoking <code>make</code> in the source root tree.</p>
+<p>Note that this does not make you a complete web site mirror, as some scripts and files are only available on the real actual site, but should give you enough to let you view most HTML pages locally.</p>

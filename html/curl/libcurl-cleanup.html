@@ -1,0 +1,10 @@
+<h2 id="cleanup">Cleanup</h2>
+<p>In previous sections we have discussed how to setup handles and how to drive the transfers. All transfers will, of course, end up at some point, either successfully or with a failure.</p>
+<h3 id="multi-api">Multi API</h3>
+<p>When you have finished a single transfer with the multi API, you use <code>curl_multi_info_read()</code> to identify exactly which easy handle was completed and you remove that easy handle from the multi handle with <code>curl_multi_remove_handle()</code>.</p>
+<p>If you remove the last easy handle from the multi handle so there are no more transfers going on, you can close the multi handle like this:</p>
+<pre><code>curl_multi_cleanup( multi_handle );</code></pre>
+<h3 id="easy-handle">easy handle</h3>
+<p>When the easy handle is done serving its purpose, you can close it. If you intend to do another transfer, you are however advised to rather reuse the handle rather than to close it and create a new one.</p>
+<p>If you do not intend to do another transfer with the easy handle, you simply ask libcurl to cleanup:</p>
+<pre><code>curl_easy_cleanup( easy_handle );</code></pre>

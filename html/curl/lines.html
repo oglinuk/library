@@ -1,0 +1,3 @@
+<p>#!/bin/sh</p>
+<p>book=<code>grep -o '[a-z-]*\.md' SUMMARY.md</code></p>
+<p>wc -l README.md $book | grep -v " total" | sort -nr</p>

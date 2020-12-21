@@ -1,0 +1,18 @@
+<h1 id="sslkeylogfile">SSLKEYLOGFILE</h1>
+<figure>
+<img src="wireshark-screenshot.png" alt="view network traffic with wireshark" /><figcaption>view network traffic with wireshark</figcaption>
+</figure>
+<p>Since a long time back, the venerable network analyzer tool Wireshark (screenshot above) has provided a way to decrypt and inspect TLS traffic when sent and received by Firefox and Chrome.</p>
+<p>This is similarly possible to do with curl.</p>
+<p>You do this by making the browser or curl tell Wireshark the SSL secrets so that it can decrypt them:</p>
+<ol class="incremental" type="1">
+<li><p>set the environment variable named <code>SSLKEYLOGFILE</code> to a file name of your choice before you start the browser or curl</p></li>
+<li><p>Setting the same file name path in the Master-secret field in Wireshark. Go to Preferences-&gt;Protocols-&gt;TLS (SSL in older versions) and edit the path as shown in the screenshot below.</p></li>
+</ol>
+<figure>
+<img src="wireshark-ssl-master-secret.png" alt="set the ssl key file name" /><figcaption>set the ssl key file name</figcaption>
+</figure>
+<p>Having done this simple operation, you can now inspect curl’s or your browser’s HTTPS traffic in Wireshark. Just super handy and awesome.</p>
+<p>Just remember that if you record TLS traffic and want to save it for analyzing later, you need to also save the file with the secrets so that you can decrypt that traffic capture at a later time as well.</p>
+<h2 id="libcurl-using-applications-too">libcurl-using applications too!</h2>
+<p>Support for <code>SSLKEYLOGFILE</code> is provided by libcurl itself - making it possible for you to trace and inspect the TLS network data for any application built to use libcurl - not just the curl command line tool.</p>

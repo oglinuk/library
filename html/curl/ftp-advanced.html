@@ -1,0 +1,24 @@
+<h1 id="more-advanced-ftp">More advanced FTP</h1>
+<h2 id="ftp-directory-listing">FTP Directory listing</h2>
+<p>You can list a remote FTP directory with curl by making sure the URL ends with a trailing slash. If the URL ends with a slash, curl will presume that it is a directory you want to list. If it is not actually a directory, you will most likely instead get an error.</p>
+<pre><code>curl ftp://ftp.example.com/directory/</code></pre>
+<p>With FTP there is no standard syntax for the directory output that is returned for this sort of command that uses the standard FTP command <code>LIST</code>. The listing is usually humanly readable and perfectly understandable but you will see that different servers will return the listing in slightly different ways.</p>
+<p>One way to get just a listing of all the names in a directory and thus to avoid the special formatting of the regular directory listings is to tell curl to <code>--list-only</code> (or just <code>-l</code>). curl then issues the <code>NLST</code> FTP command instead:</p>
+<pre><code>curl --list-only ftp://ftp.example.com/directory/</code></pre>
+<p>NLST has its own quirks though, as some FTP servers list only actual <em>files</em> in their response to NLST; they do not include directories and symbolic links!</p>
+<h2 id="uploading-with-ftp">Uploading with FTP</h2>
+<p>To upload to an FTP server, you specify the entire target file path and name in the URL, and you specify the local file name to upload with <code>-T, --upload-file</code>. Optionally, you end the target URL with a slash and then the file component from the local path will be appended by curl and used as the remote file name.</p>
+<p>Like:</p>
+<pre><code>curl -T localfile ftp://ftp.example.com/dir/path/remote-file</code></pre>
+<p>or to use the local file name as the remote name:</p>
+<pre><code>curl -T localfile ftp://ftp.example.com/dir/path/</code></pre>
+<p>curl also supports <a href="cmdline-globbing.md">globbing</a> in the -T argument so you can opt to easily upload a range or a series of files:</p>
+<pre><code>curl -T image[1-99].jpg ftp://ftp.example.com/upload/</code></pre>
+<p>or</p>
+<pre><code>curl -T &#39;{Huey,Dewey,Louie}.jpg&#39; ftp://ftp.example.com/nephews/</code></pre>
+<h2 id="custom-ftp-commands">Custom FTP commands</h2>
+<p>TBD</p>
+<h2 id="ftps">FTPS</h2>
+<p>TBD</p>
+<h2 id="common-ftp-problems">Common FTP problems</h2>
+<p>TBD</p>

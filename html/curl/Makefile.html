@@ -1,0 +1,3 @@
+<p>OUT = bookindex.md</p>
+<p>MDS := $(shell grep -o ‘[a-z0-9-]+.md’ SUMMARY.md | grep -v index.md)</p>
+<p>$(OUT): mkindex.pl Makefile index-words $(MDS) perl mkindex.pl $(MDS) &gt; $(OUT)</p>

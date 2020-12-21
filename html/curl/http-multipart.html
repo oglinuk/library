@@ -1,0 +1,50 @@
+<h2 id="http-multipart-formposts">HTTP multipart formposts</h2>
+<p>A multipart formpost is what an HTTP client sends when an HTML form is submitted with <em>enctype</em> set to “multipart/form-data”. It is an HTTP POST request sent with the request body specially formatted as a series of “parts”, separated with MIME boundaries.</p>
+<p>An example piece of HTML would look like this:</p>
+<pre><code>&lt;form action=&quot;submit.cgi&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;
+  Name: &lt;input type=&quot;text&quot; name=&quot;person&quot;&gt;&lt;br&gt;
+  File: &lt;input type=&quot;file&quot; name=&quot;secret&quot;&gt;&lt;br&gt;
+  &lt;input type=&quot;submit&quot; value=&quot;Submit&quot;&gt;
+&lt;/form&gt; </code></pre>
+<p>Which could look something like this in a web browser:</p>
+<figure>
+<img src="multipart-form.png" alt="a multipart form" /><figcaption>a multipart form</figcaption>
+</figure>
+<p>A user can fill in text in the ‘Name’ field and by pressing the ‘Browse’ button a local file can be selected that will be uploaded when ‘Submit’ is pressed.</p>
+<h3 id="sending-such-a-form-with-curl">Sending such a form with curl</h3>
+<p>With curl, you add each separate multipart with one <code>-F</code> (or <code>--form</code>) flag and you then continue and add one -F for every input field in the form that you want to send.</p>
+<p>The above small example form has two parts, one named ‘person’ that is a plain text field and one named ‘secret’ that is a file.</p>
+<p>Send your data to that form like this:</p>
+<pre><code>curl -F person=anonymous -F secret=@file.txt http://example.com/submit.cgi</code></pre>
+<h3 id="the-http-this-generates">The HTTP this generates</h3>
+<p>The <strong>action</strong> specifies where the POST is sent. <strong>method</strong> says it is a POST and <strong>enctype</strong> tells us it is a multipart formpost.</p>
+<p>With the fields filled in as shown above, curl generates and sends these HTTP request headers to the host example.com:</p>
+<pre><code>POST /submit.cgi HTTP/1.1
+Host: example.com
+User-Agent: curl/7.46.0
+Accept: */*
+Content-Length: 313
+Expect: 100-continue
+Content-Type: multipart/form-data; boundary=------------------------d74496d66958873e</code></pre>
+<p><strong>Content-Length</strong>, of course, tells the server how much data to expect. This example’s 313 bytes is really small.</p>
+<p>The <strong>Expect</strong> header is explained in the <a href="http-post.md">HTTP POST</a> chapter.</p>
+<p>The <strong>Content-Type</strong> header is a bit special. It tells that this is a multipart formpost and then it sets the “boundary” string. The boundary string is a line of characters with a bunch of random digits somewhere in it, that serves as a separator between the different parts of the form that will be submitted. The particular boundary you see in this example has the random part <code>d74496d66958873e</code> but you will, of course, get something different when you run curl (or when you submit such a form with a browser).</p>
+<p>So after that initial set of headers follows the request body</p>
+<pre><code>--------------------------d74496d66958873e
+Content-Disposition: form-data; name=&quot;person&quot;
+
+anonymous
+--------------------------d74496d66958873e
+Content-Disposition: form-data; name=&quot;secret&quot;; filename=&quot;file.txt&quot;
+Content-Type: text/plain
+
+contents of the file
+--------------------------d74496d66958873e--</code></pre>
+<p>Here you clearly see the two parts sent, separated with the boundary strings. Each part starts with one or more headers describing the individual part with its name and possibly some more details. Then after the part’s headers come the actual data of the part, without any sort of encoding.</p>
+<p>The last boundary string has two extra dashes <code>--</code> appended to signal the end.</p>
+<h3 id="content-type">Content-Type</h3>
+<p>POSTing with curl’s -F option will make it include a default Content-Type header in its request, as shown in the above example. This says <code>multipart/form-data</code> and then specifies the MIME boundary string. That content-type is the default for multipart formposts but you can, of course, still modify that for your own commands and if you do, curl is clever enough to still append the boundary magic to the replaced header. You cannot really alter the boundary string, since curl needs that for producing the POST stream.</p>
+<p>To replace the header, use <code>-H</code> like this:</p>
+<pre><code>curl -F &#39;name=Dan&#39; -H &#39;Content-Type: multipart/magic&#39; https://example.com</code></pre>
+<h3 id="converting-an-html-form">Converting an HTML form</h3>
+<p>TBD</p>

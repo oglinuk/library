@@ -1,0 +1,7 @@
+<h1 id="how-to-http-with-curl">How to HTTP with curl</h1>
+<p>In all user surveys and during all curl’s lifetime, HTTP has been the most important and most frequently used protocol that curl supports. This chapter will explain how to do effective HTTP transfers and general fiddling with curl.</p>
+<p>This will mostly work the same way for HTTPS, as they are really the same thing under the hood, as HTTPS is HTTP with an extra security TLS layer. See also the specific <a href="#https">HTTPS</a> section below.</p>
+<h2 id="http-methods">HTTP methods</h2>
+<p>In every HTTP request, there’s a method. Sometimes called a verb. The most commonly used ones are GET, POST, HEAD and PUT.</p>
+<p>Normally however you do not specify the method in the command line, but instead the exact method used depends on the specific options you use. GET is default, using <code>-d</code> or <code>-F</code> makes it a POST, <code>-I</code> generates a HEAD and <code>-T</code> sends a PUT.</p>
+<p>More about this in the <a href="http-requests.md">Modify the HTTP request</a> section.</p>

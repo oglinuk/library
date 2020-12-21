@@ -1,0 +1,46 @@
+<h1 id="http-versions">HTTP versions</h1>
+<p>As any other Internet protocol, the HTTP protocol has kept evolving over the years and now there are clients and servers distributed over the world and over time that speak different versions with varying levels of success. So in order to get libcurl to work with the URLs you pass in libcurl offers ways for you to specify which HTTP version that request and transfer should use. libcurl is designed in a way so that it tries to use the most common, the most sensible if you want, default values first but sometimes that is not enough and then you may need to instruct libcurl what to do.</p>
+<p>Since mid 2016, libcurl defaults to use HTTP/2 for HTTPS servers if you have a libcurl that has HTTP/2 abilities built-in, libcurl will attempt to use HTTP/2 automatically or fall back to 1.1 in case the negotiation failed. Non-HTTP/2 capable libcurls get 1.1 over HTTPS by default. Plain HTTP requests still default to HTTP/1.1.</p>
+<p>If the default behavior is not good enough for your transfer, the <code>CURLOPT_HTTP_VERSION</code> option is there for you.</p>
+<table>
+<colgroup>
+<col style="width: 74%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CURL_HTTP_VERSION_NONE</td>
+<td>Reset back to default behavior</td>
+</tr>
+<tr class="even">
+<td>CURL_HTTP_VERSION_1_0</td>
+<td>Enforce use of the legacy HTTP/1.0 protocol version</td>
+</tr>
+<tr class="odd">
+<td>CURL_HTTP_VERSION_1_1</td>
+<td>Do the request using the HTTP/1.1 protocol version</td>
+</tr>
+<tr class="even">
+<td>CURL_HTTP_VERSION_2_0</td>
+<td>Attempt to use HTTP/2</td>
+</tr>
+<tr class="odd">
+<td>CURL_HTTP_VERSION_2TLS</td>
+<td>Attempt to use HTTP/2 on HTTPS connections only, otherwise do HTTP/1.1</td>
+</tr>
+<tr class="even">
+<td>CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE</td>
+<td>Use HTTP/2 straight away without “upgrading” from 1.1. It requires that you know that this server is OK with it.</td>
+</tr>
+<tr class="odd">
+<td>CURL_HTTP_VERSION_3</td>
+<td>Use HTTP/3 straight away. It requires that you know that this server is OK with it.</td>
+</tr>
+</tbody>
+</table>

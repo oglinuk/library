@@ -1,0 +1,57 @@
+<h1 id="url-api">URL API</h1>
+<p>Since version 7.62.0, libcurl offers an API for parsing, updating and generating URLs. Using this, applications can take advantage of using libcurl’s URL parser for its own purposes. By using the same parser, security problems due to different interpretations can be avoided.</p>
+<h2 id="include-files">Include files</h2>
+<p>You’d still only include <code>&lt;curl/curl.h&gt;</code> in your code.</p>
+<h2 id="create-cleanup-duplicate">Create, cleanup, duplicate</h2>
+<p>Create a handle that holds URL info and resources:</p>
+<pre><code>CURLU *h = curl_url();</code></pre>
+<p>When done with it, clean it up:</p>
+<pre><code>curl_url_cleanup(h);</code></pre>
+<p>When you need a copy of a handle, just duplicate it:</p>
+<pre><code>CURLU *nh = curl_url_dup(h);</code></pre>
+<h2 id="parse-a-url">Parse a URL</h2>
+<pre><code>rc = curl_url_set(h, CURLUPART_URL, &quot;https://example.com:449/foo/bar?name=moo&quot;, 0);</code></pre>
+<p>(The zero in the function call is bitmask for changing specific features.)</p>
+<p>If successful, this stores the URL in its individual parts within the handle.</p>
+<h2 id="redirect-to-a-relative-url">Redirect to a relative URL</h2>
+<p>When the handle already has parsed a URL, setting a relative URL will make it “redirect” to adapt to it.</p>
+<pre><code>rc = curl_url_set(h, CURLUPART_URL, &quot;../test?another&quot;, 0);</code></pre>
+<h2 id="get-a-url">Get a URL</h2>
+<p>The <code>CURLU</code> handle represents a URL and you can easily extract that:</p>
+<pre><code>char *url;
+rc = curl_url_get(h, CURLUPART_URL, &amp;url, 0);
+curl_free(url);</code></pre>
+<p>(The zero in the function call is bitmask for changing specific features.)</p>
+<h2 id="get-individual-url-parts">Get individual URL parts</h2>
+<p>When a URL has been parsed or parts have been set, you can extract those pieces from the handle at any time.</p>
+<pre><code>rc = curl_url_get(h, CURLUPART_HOST, &amp;host, 0);
+rc = curl_url_get(h, CURLUPART_SCHEME, &amp;scheme, 0);
+rc = curl_url_get(h, CURLUPART_USER, &amp;user, 0);
+rc = curl_url_get(h, CURLUPART_PASSWORD, &amp;password, 0);
+rc = curl_url_get(h, CURLUPART_PORT, &amp;port, 0);
+rc = curl_url_get(h, CURLUPART_PATH, &amp;path, 0);
+rc = curl_url_get(h, CURLUPART_QUERY, &amp;query, 0);
+rc = curl_url_get(h, CURLUPART_FRAGMENT, &amp;fragment, 0);</code></pre>
+<p>Extracted parts are not URL decoded unless the user asks for it with the <code>CURLU_URLDECODE</code> flag.</p>
+<p>Remember to free the returned string with <code>curl_free</code> when you are done with it!</p>
+<h2 id="set-individual-url-parts">Set individual URL parts</h2>
+<p>A user can opt to set individual parts, either after having parsed a full URL or instead of parsing such.</p>
+<pre><code>rc = curl_url_set(urlp, CURLUPART_HOST, &quot;www.example.com&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_SCHEME, &quot;https&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_USER, &quot;john&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_PASSWORD, &quot;doe&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_PORT, &quot;443&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_PATH, &quot;/index.html&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_QUERY, &quot;name=john&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_FRAGMENT, &quot;anchor&quot;, 0);</code></pre>
+<p>Set parts are not URL encoded unless the user asks for it with the <code>CURLU_URLENCODE</code> flag.</p>
+<h2 id="append-to-the-query">Append to the query</h2>
+<p>An application can append a string to the right end of the query part with the <code>CURLU_APPENDQUERY</code> flag.</p>
+<p>Imagine a handle that holds the URL <code>https://example.com/?shoes=2</code>. An application can then add the string <code>hat=1</code> to the query part like this:</p>
+<pre><code>rc = curl_url_set(urlp, CURLUPART_QUERY, &quot;hat=1&quot;, CURLU_APPENDQUERY);</code></pre>
+<p>It will even notice the lack of an ampersand (<code>&amp;</code>) separator so it will inject one too, and the handle’s full URL would then equal <code>https://example.com/?shoes=2&amp;hat=1</code>.</p>
+<p>The appended string can of course also get URL encoded on add, and if asked, the encoding will skip the ‘=’ character. For example, append <code>candy=M&amp;M</code> to what we already have, and URL encode it to deal with the ampersand in the data:</p>
+<pre><code>rc = curl_url_set(urlp, CURLUPART_QUERY, &quot;candy=M&amp;M&quot;, CURLU_APPENDQUERY | CURLU_URLENCODE);</code></pre>
+<p>Now the URL looks like <code>https://example.com/?shoes=2&amp;hat=1&amp;candy=M%26M</code>.</p>
+<h2 id="curlopt_curlu">CURLOPT_CURLU</h2>
+<p>libcurl 7.63.0 or later allows applications to pass in a <code>CURLU</code> handle instead of a URL string to tell curl what to transfer to or from. This is particularly convenient for applications that already parse the URL and might have it stored in such a handle already.</p>

@@ -1,0 +1,35 @@
+<h2 id="uploads">Uploads</h2>
+<p>Uploading is a term for sending data to a remote server. Uploading is done differently for each protocol, and several protocols may even allow different ways of uploading data.</p>
+<h3 id="protocols-allowing-upload">Protocols allowing upload</h3>
+<p>You can upload data using one of these protocols: FILE, FTP, FTPS, HTTP, HTTPS, IMAP, IMAPS, SCP, SFTP, SMB, SMBS, SMTP, SMTPS and TFTP.</p>
+<h3 id="http-offers-several-uploads">HTTP offers several “uploads”</h3>
+<p>HTTP (and its bigger brother HTTPS) provides several different ways to upload data to a server and curl offers easy command-line options to do it the three most common ways, described below.</p>
+<p>An interesting detail with HTTP is also that an upload can also be a download, in the same operation and in fact many downloads are initiated with an HTTP POST.</p>
+<h4 id="post">POST</h4>
+<p>POST is the HTTP method that was invented to send data to a receiving web application, and it is, for example, how most common HTML forms on the web work. It usually sends a chunk of relatively small amounts of data to the receiver.</p>
+<p>The upload kind is usually done with the <code>-d</code> or <code>--data</code> options, but there are a few additional alterations.</p>
+<p>Read the detailed description on how to do this with curl in the <a href="http-post.md">HTTP POST with curl</a> chapter.</p>
+<h4 id="multipart-formpost">multipart formpost</h4>
+<p>Multipart formposts are also used in HTML forms on web sites; typically when there’s a file upload involved. This type of upload is also an HTTP POST but it sends the data formatted according to some special rules, which is what the “multipart” name means.</p>
+<p>Since it sends the data formatted completely differently, you cannot select which type of POST to use at your own whim but it entirely depends on what the receiving server end expects and can handle.</p>
+<p>HTTP multipart formposts are done with <code>-F</code>. See the detailed description in the <a href="http-multipart.md">HTTP multipart formposts</a> chapter.</p>
+<h4 id="put">PUT</h4>
+<p>HTTP PUT is the sort of upload that was designed to send a complete resource that is meant to be put as-is on the remote site or even replace an existing resource there. That said, this is also the least used upload method for HTTP on the web today and lots, if not most, web servers do not even have PUT enabled.</p>
+<p>You send off an HTTP upload using the -T option with the file to upload:</p>
+<pre><code>curl -T uploadthis http://example.com/</code></pre>
+<h3 id="ftp-uploads">FTP uploads</h3>
+<p>Working with FTP, you get to see the remote file system you will be accessing. You tell the server exactly in which directory you want the upload to be placed and which file name to use. If you specify the upload URL with a trailing slash, curl will append the locally used file name to the URL and then that will be the file name used when stored remotely:</p>
+<pre><code>curl -T uploadthis ftp://example.com/this/directory/</code></pre>
+<p>So if you prefer to select a different file name on the remote side than what you have used locally, you specify it in the URL:</p>
+<pre><code>curl -T uploadthis ftp://example.com/this/directory/remotename</code></pre>
+<p>Learn more about FTPing with curl in the <a href="usingcurl-ftp.md">Using curl/FTP</a> section.</p>
+<h3 id="smtp-uploads">SMTP uploads</h3>
+<p>You may not consider sending an e-mail to be “uploading”, but to curl it is. You upload the mail body to the SMTP server. With SMTP, you also need to include all the e-mail headers you need (To:, From:, Date:, etc.) in the mail body as curl will not add any at all.</p>
+<pre><code>curl -T mail smtp://mail.example.com/ --mail-from user@example.com</code></pre>
+<p>Learn more about using SMTP with curl in the <a href="usingcurl-smtp.md">Using curl/SMTP</a> section.</p>
+<h3 id="progress-meter-for-uploads">Progress meter for uploads</h3>
+<p>The general progress meter curl provides (see the <a href="cmdline-progressmeter.md">Progress meter</a> section) works fine for uploads as well. What needs to be remembered is that the progress meter is automatically disabled when you are sending output to stdout, and most protocols curl support can output something even for an upload.</p>
+<p>Therefore, you may need to explicitly redirect the downloaded data to a file (using shell redirect ‘&gt;’, <code>-o</code> or similar) to get the progress meter displayed for upload.</p>
+<h3 id="rate-limiting">Rate limiting</h3>
+<p>Rate limiting works exactly the same for uploads as for downloads and curl, in fact, only has a single limit that will limit the speed in both directions.</p>
+<p>See further details in the <a href="usingcurl-downloads.md#rate-limiting">Download Rate limiting section</a>.</p>

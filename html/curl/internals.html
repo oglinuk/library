@@ -1,0 +1,45 @@
+<h1 id="libcurl-internals">libcurl internals</h1>
+<p>libcurl is never finished and is not just an off-the-shelf product. It is a living project that is improved and modified on almost a daily basis. We depend on skilled and interested hackers to fix bugs and to add features.</p>
+<p>This chapter is meant to describe internal details to aid keen libcurl hackers to learn some basic concepts on how libcurl works internally and thus possibly where to look for problems or where to add things when you want to make the library do something new.</p>
+<h2 id="easy-handle-and-connections">Easy handle and connections</h2>
+<p>When reading the source code there are some useful basics that are good to know and keep in mind:</p>
+<ul class="incremental">
+<li><p>‘data’ is the variable name we use all over to refer to the easy handle (<code>struct Curl_easy</code>) for the transfer being worked on. No other name should be used for this and nothing else should use this name.</p></li>
+<li><p><code>conn</code> is the variable name we use all over the internals to refer to the current <em>connection</em> the code works on (<code>struct connectdata</code>). A transfer typically uses a connection at some point and typically only one at a time. There’s a <code>conn-&gt;data</code> pointer that identifies the transfer that is currently working on this connection. A single connection can be reused over time by several transfers (and thus easy handles) and a single connection can also be used by several easy handles simultaneously when multiplexed connections are used. When muliplexing are used, the <code>conn-&gt;data</code> pointer has to be updated accordingly quite frequently.</p></li>
+<li><p><code>result</code> is the usual name we use for a <code>CURLcode</code> variable to hold the return values from functions and if that return value is different than zero, it is an error and the function should clean up and return (usually passing on the same error code to its parent function).</p></li>
+</ul>
+<h2 id="everything-is-multi">Everything is multi</h2>
+<p>libcurl offers a few different APIs to do transfers; where the primary differences are the synchronous easy interface versus the non-blocking multi interface. The multi interface itself can then be further used either by using the event-driven socket interface or the “normal” perform interface.</p>
+<p>Internally however, everything is written for the event-driven interface. Everything needs to be written in non-blocking fashion so that functions are never waiting for data in loop or similar. Unless they are the “surface” functions that have that expressed functionality.</p>
+<p>The function <code>curl_easy_perform()</code> which performs a single transfer synchronously, is itself just a wrapper function that internally will setup and use the multi interface itself.</p>
+<h2 id="everything-is-state-machines">Everything is state machines</h2>
+<p>To facilitate that non-blocking nature, the curl source is full of state machines. Work on as much data as there is and drive the state machine to where it can go based on what’s available and allow the functions to continue from that point later on when more data arrives that then might drive the state machine further.</p>
+<p>There are such states in many different levels for a given transfer and the code for each particular protocol may have its own set of state machines.</p>
+<p>One of the primary states is the main transfer “mode” the easy handle holds, which says if the current transfer is resolving, waiting for a resolve, connecting, waiting for a connect, issuing a request, doing a transfer etc (see the <code>CURLMstate</code> enum in <code>lib/multihandle.h</code>). Every transfer done with libcurl has an associated easy handle and every easy handle will exercise that state machine.</p>
+<h2 id="different-protocols-hooked-in">Different protocols “hooked in”</h2>
+<p>libcurl is a multi-protocol transfer library. The core of the code is a set of generic functions that are used for transfers in general and will mostly work the same for all protocols. The main state machine described above for example is there and works for all protocols - even though some protocols may not make use of all states for all transfers.</p>
+<p>However, each different protocol libcurl speaks also has its unique particularities and specialties. In order to not have the code littered with conditions in the style “if the protocol is XYZ, then do…”, we instead have the concept of <code>Curl_handler</code>. Each supported protocol defines one of those in <code>lib/url.c</code> there’s an array of pointers to such handlers called <code>protocols[]</code>.</p>
+<p>When a transfer is about to be done, libcurl parses the URL it is about to operate on and among other things it figures out what protocol to use. Normally this can be done by looking at the scheme part of the URL. For <code>https://example.com</code> that is <code>https</code> and for <code>imaps://example.com</code> it is <code>imaps</code>. Using the provided scheme, libcurl sets the <code>conn-&gt;handler</code> pointer to the handler struct for the protocol that handles this URL.</p>
+<p>The handler struct contains a set of function pointers that can be NULL or set to point to a protocol specific function to do things necessary for that protocol to work for a transfer. Things that not all other protocols need. The handler struct also sets up the name of the protocol and describes its feature set with a bitmask.</p>
+<p>A libcurl transfer is built around a set of different “actions” and the handler can extend each of them. Here are some example function pointers in this struct and how they are used:</p>
+<h3 id="setup-connection">Setup connection</h3>
+<p>If a connection cannot be reused for a transfer, it needs to setup a connection to the host given in the URL and when it does, it can also call the protocol handler’s function for it. Like this:</p>
+<pre><code>if(conn-&gt;handler-&gt;setup_connection)
+  result = conn-&gt;handler-&gt;setup_connection(conn);</code></pre>
+<h3 id="connect">Connect</h3>
+<p>After a connection has been established, this function gets called</p>
+<pre><code>if(conn-&gt;handler-&gt;connect_it)
+  result = conn-&gt;handler-&gt;connect_it(conn, &amp;done);</code></pre>
+<h3 id="do">Do</h3>
+<p>“Do” is simply the action that issues a request for the particular resource the URL identifies. All protocol has a do action so this function must be provided:</p>
+<pre><code>result = conn-&gt;handler-&gt;do_it(conn, &amp;done);</code></pre>
+<h3 id="done">Done</h3>
+<p>When a transfer is completed, the “done” action is taken:</p>
+<pre><code>result = conn-&gt;handler-&gt;done(conn);</code></pre>
+<h3 id="disconnect">Disconnect</h3>
+<p>The connection is about to be taken down.</p>
+<pre><code>result = conn-&gt;handler-&gt;disconnect(conn, dead_connection);</code></pre>
+<h2 id="name-resolving">Name resolving</h2>
+<p>TBD</p>
+<h2 id="vtls">vtls</h2>
+<p>TBD</p>

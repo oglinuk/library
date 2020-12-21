@@ -1,0 +1,28 @@
+<h1 id="get-curl-for-linux">Get curl for Linux</h1>
+<p>Linux distributions come with “packager managers” that let you install software that they offer. Most Linux distributions offer curl and libcurl to be installed if they aren’t installed by default.</p>
+<h2 id="ubuntu-and-debian">Ubuntu and Debian</h2>
+<p><code>apt</code> is a tool to install prebuilt packages on Debian Linux and Ubuntu Linux distributions and derivatives.</p>
+<p>To install the curl command-line tool, you usually just</p>
+<pre><code>apt install curl</code></pre>
+<p>…and that then makes sure the dependencies are installed and usually libcurl is then also installed as an individual package.</p>
+<p>If you want to build applications against libcurl, you need a development package installed to get the include headers and some additional documentation, etc. You can then select a libcurl with the TLS backend you prefer:</p>
+<pre><code>apt install libcurl4-openssl-dev</code></pre>
+<p>or</p>
+<pre><code>apt install libcurl4-nss-dev</code></pre>
+<p>or</p>
+<pre><code>apt install libcurl4-gnutls-dev</code></pre>
+<h2 id="redhat-and-centos">Redhat and Centos</h2>
+<p>With Redhat Linux and CentOS Linux derivatives, you use <code>yum</code> to install packages. Install the command-line tool with:</p>
+<pre><code>yum install curl</code></pre>
+<p>You install the libcurl development package (with include files and some docs, etc.) with this:</p>
+<pre><code>yum install libcurl-devel</code></pre>
+<h3 id="nix">nix</h3>
+<p><a href="https://nixos.org/nix/">Nix</a> is a package manager default to the NixOS distribution, but it can also be used on any Linux distribution.</p>
+<p>In order to install command-line tool:</p>
+<pre><code>nix-env -i curl</code></pre>
+<h2 id="arch-linux">Arch Linux</h2>
+<p>curl is located in the core repository of Arch Linux. This means it should be installed automatically if you follow the normal installation procedure.</p>
+<p>If curl is not installed, Arch Linux uses <code>pacman</code> to install packages:</p>
+<pre><code>pacman -S curl</code></pre>
+<h2 id="other-distros">Other distros</h2>
+<p>TBD</p>

@@ -1,0 +1,8 @@
+<h2 id="curlcode-return-code">CURLcode return code</h2>
+<p>Many libcurl functions return a CURLcode. That’s a special libcurl typedefed variable for error codes. It returns <code>CURLE_OK</code> (which has the value zero) if everything is fine and dandy and it returns a non-zero number if a problem was detected. There are almost one hundred <code>CURLcode</code> errors in use, and you can find them all in the <code>curl/curl.h</code> header file and documented in the libcurl-errors man page.</p>
+<p>You can convert a CURLcode into a human readable string with the <code>curl_easy_strerror()</code> function—but be aware that these errors are rarely phrased in a way that is suitable for anyone to expose in a UI or to an end user:</p>
+<pre><code>const char *str = curl_easy_strerror( error );
+printf(&quot;libcurl said %s\n&quot;, str);</code></pre>
+<p>Another way to get a slightly better error text in case of errors is to set the <code>CURLOPT_ERRORBUFFER</code> option to point out a buffer in your program and then libcurl will store a related error message there before it returns an error:</p>
+<pre><code>curl error[CURL_ERROR_SIZE]; /* needs to be at least this big */
+CURLcode ret = curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, error);</code></pre>

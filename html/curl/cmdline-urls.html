@@ -1,0 +1,86 @@
+<h2 id="urls">URLs</h2>
+<p>curl is called curl because a substring in its name is URL (Uniform Resource Locator). It operates on URLs. URL is the name we casually use for the web address strings, like the ones we usually see prefixed with http:// or starting with www.</p>
+<p>URL is, strictly speaking, the former name for these. URI (Uniform Resource Identifier) is the more modern and correct name for them. Their syntax is defined in <a href="https://www.ietf.org/rfc/rfc3986.txt">RFC 3986</a>.</p>
+<p>Where curl accepts a “URL” as input, it is then really a “URI”. Most of the protocols curl understands also have a corresponding URI syntax document that describes how that particular URI format works.</p>
+<p>curl assumes that you give it a valid URL and it only does limited checks of the format in order to extract the information it deems necessary to perform its operation. You can, for example, most probably pass in illegal characters in the URL without curl noticing or caring and it will just pass them on.</p>
+<h3 id="scheme">Scheme</h3>
+<p>URLs start with the “scheme”, which is the official name for the <code>http://</code> part. That tells which protocol the URL uses. The scheme must be a known one that this version of curl supports or it will show an error message and stop. Additionally, the scheme must neither start with nor contain any whitespace.</p>
+<h3 id="the-scheme-separator">The scheme separator</h3>
+<p>The scheme identifier is separated from the rest of the URL by the <code>://</code> sequence. That is a colon and two forward slashes. There exists URL formats with only one slash, but curl does not support any of them. There are two additional notes to be aware of, about the number of slashes:</p>
+<p>curl allow some illegal syntax and try to correct it internally; so it will also understand and accept URLs with one or three slashes, even though they are in fact not properly formed URLs. curl does this because the browsers started this practice so it has lead to such URLs being used in the wild every now and then.</p>
+<p><code>file://</code> URLs are written as <code>file://&lt;hostname&gt;/&lt;path&gt;</code> but the only hostnames that are okay to use are <code>localhost</code>, <code>127.0.0.1</code> or a blank (nothing at all):</p>
+<pre><code>file://localhost/path/to/file
+file://127.0.0.1/path/to/file
+file:///path/to/file</code></pre>
+<p>Inserting any other host name in there will make recent versions of curl to return an error.</p>
+<p>Pay special attention to the third example above (<code>file:///path/to/file</code>). That is <em>three</em> slashes before the path. That is again an area with common mistakes and where browsers allow users to use the wrong syntax so as a special exception, curl on Windows also allows this incorrect format:</p>
+<pre><code>file://X:/path/to/file</code></pre>
+<p>… where X is a windows-style drive letter.</p>
+<h3 id="without-scheme">Without scheme</h3>
+<p>As a convenience, curl also allows users to leave out the scheme part from URLs. Then it guesses which protocol to use based on the first part of the host name. That guessing is basic, as it just checks if the first part of the host name matches one of a set of protocols, and assumes you meant to use that protocol. This heuristic is based on the fact that servers traditionally used to be named like that. The protocols that are detected this way are FTP, DICT, LDAP, IMAP, SMTP and POP3. Any other host name in a scheme-less URL will make curl default to HTTP.</p>
+<p>You can modify the default protocol to something other than HTTP with the <code>--proto-default</code> option.</p>
+<h3 id="name-and-password">Name and password</h3>
+<p>After the scheme, there can be a possible user name and password embedded. The use of this syntax is usually frowned upon these days since you easily leak this information in scripts or otherwise. For example, listing the directory of an FTP server using a given name and password:</p>
+<pre><code>curl ftp://user:password@example.com/</code></pre>
+<p>The presence of user name and password in the URL is completely optional. curl also allows that information to be provide with normal command-line options, outside of the URL.</p>
+<h3 id="host-name-or-address">Host name or address</h3>
+<p>The host name part of the URL is, of course, simply a name that can be resolved to an numerical IP address, or the numerical address itself. When specifying a numerical address, use the dotted version for IPv4 addresses:</p>
+<pre><code>curl http://127.0.0.1/</code></pre>
+<p>…and for IPv6 addresses the numerical version needs to be within square brackets:</p>
+<pre><code>curl http://[::1]/</code></pre>
+<p>When a host name is used, the converting of the name to an IP address is typically done using the system’s resolver functions. That normally lets a sysadmin provide local name lookups in the <code>/etc/hosts</code> file (or equivalent).</p>
+<h3 id="port-number">Port number</h3>
+<p>Each protocol has a “default port” that curl will use for it, unless a specified port number is given. The optional port number can be provided within the URL after the host name part, as a colon and the port number written in decimal. For example, asking for an HTTP document on port 8080:</p>
+<pre><code>curl http://example.com:8080/</code></pre>
+<p>With the name specified as an IPv4 address:</p>
+<pre><code>curl http://127.0.0.1:8080/</code></pre>
+<p>With the name given as an IPv6 address:</p>
+<pre><code>curl http://[fdea::1]:8080/</code></pre>
+<h3 id="path">Path</h3>
+<p>Every URL contains a path. If there’s none given, “/” is implied. The path is sent to the specified server to identify exactly which resource that is requested or that will be provided.</p>
+<p>The exact use of the path is protocol dependent. For example, getting a file README from the default anonymous user from an FTP server:</p>
+<pre><code>curl ftp://ftp.example.com/README</code></pre>
+<p>For the protocols that have a directory concept, ending the URL with a trailing slash means that it is a directory and not a file. Thus asking for a directory list from an FTP server is implied with such a slash:</p>
+<pre><code>curl ftp://ftp.example.com/tmp/</code></pre>
+<h3 id="ftp-type">FTP type</h3>
+<p>This is not a feature that is widely used.</p>
+<p>URLs that identify files on FTP servers have a special feature that allows you to also tell the client (curl in this case) which file type the resource is. This is because FTP is a little special and can change mode for a transfer and thus handle the file differently than if it would use another mode.</p>
+<p>You tell curl that the FTP resource is an ASCII type by appending “;type=A” to the URL. Getting the ‘foo’ file from example.com’s root directory using ASCII could then be made with:</p>
+<pre><code>curl &quot;ftp://example.com/foo;type=A&quot;</code></pre>
+<p>And while curl defaults to binary transfers for FTP, the URL format allows you to also specify the binary type with type=I:</p>
+<pre><code>curl &quot;ftp://example.com/foo;type=I&quot;</code></pre>
+<p>Finally, you can tell curl that the identified resource is a directory if the type you pass is D:</p>
+<pre><code>curl &quot;ftp://example.com/foo;type=D&quot;</code></pre>
+<p>…this can then work as an alternative format, instead of ending the path with a trailing slash as mentioned above.</p>
+<h3 id="fragment">Fragment</h3>
+<p>URLs offer a “fragment part”. That’s usually seen as a hash symbol (#) and a name for a specific name within a web page in browsers. curl supports fragments fine when a URL is passed to it, but the fragment part is never actually sent over the wire so it does not make a difference to curl’s operations whether it is present or not.</p>
+<h3 id="browsers-address-bar">Browsers’ “address bar”</h3>
+<p>It is important to realize that when you use a modern web browser, the “address bar” they tend to feature at the top of their main windows are not using “URLs” or even “URIs”. They are in fact mostly using IRIs, which is a superset of URIs to allow internationalization like non-Latin symbols and more, but it usually goes beyond that, too, as they tend to, for example, handle spaces and do magic things on percent encoding in ways none of these mentioned specifications say a client should do.</p>
+<p>The address bar is quite simply an interface for humans to enter and see URI-like strings.</p>
+<p>Sometimes the differences between what you see in a browser’s address bar and what you can pass in to curl is significant.</p>
+<h2 id="many-options-and-urls">Many options and URLs</h2>
+<p>As mentioned above, curl supports hundreds of command-line options and it also supports an unlimited number of URLs. If your shell or command-line system supports it, there’s really no limit to how long a command line you can pass to curl.</p>
+<p>curl will parse the entire command line first, apply the wishes from the command-line options used, and then go over the URLs one by one (in a left to right order) to perform the operations.</p>
+<p>For some options (for example <code>-o</code> or <code>-O</code> that tell curl where to store the transfer), you may want to specify one option for each URL on the command line.</p>
+<p>curl will return an exit code for its operation on the last URL used. If you instead rather want curl to exit with an error on the first URL in the set that fails, use the <code>--fail-early</code> option.</p>
+<h2 id="separate-options-per-url">Separate options per URL</h2>
+<p>In previous sections we described how curl always parses all options in the whole command line and applies those to all the URLs that it transfers.</p>
+<p>That was a simplification: curl also offers an option (-;, –next) that inserts a sort of boundary between a set of options and URLs for which it will apply the options. When the command-line parser finds a –next option, it applies the following options to the next set of URLs. The –next option thus works as a <em>divider</em> between a set of options and URLs. You can use as many –next options as you please.</p>
+<p>As an example, we do an HTTP GET to a URL and follow redirects, we then make a second HTTP POST to a different URL and we round it up with a HEAD request to a third URL. All in a single command line:</p>
+<pre><code>curl --location http://example.com/1 --next
+  --data sendthis http://example.com/2 --next
+  --head http://example.com/3</code></pre>
+<p>Trying something like that <em>without</em> the –next options on the command line would generate an illegal command line since curl would attempt to combine both a POST and a HEAD:</p>
+<pre><code>Warning: You can only select one HTTP request method! You asked for both POST
+Warning: (-d, --data) and HEAD (-I, --head).</code></pre>
+<h2 id="connection-reuse">Connection reuse</h2>
+<p>Setting up a TCP connection and especially a TLS connection can be a slow process, even on high bandwidth networks.</p>
+<p>It can be useful to remember that curl has a connection pool internally which keeps previously used connections alive and around for a while after they were used so that subsequent requests to the same hosts can reuse an already established connection.</p>
+<p>Of course, they can only be kept alive for as long as the curl tool is running. It is a good reason for trying to get several transfers done within the same command line instead of running several independent curl command line invocations.</p>
+<h2 id="do-the-transfers-in-parallel">Do the transfers in parallel</h2>
+<p>The default behavior of getting the specified URLs one by one in a serial fashion makes it easy to understand exactly when each URL is fetched but it can be slow.</p>
+<p>Since version 7.66.0, curl offers the <code>-Z</code> (or <code>--parallel</code>) option that instead instructs curl to attempt to do the specified transfers in a parallel fashion. When this is enabled, curl will do a lot of transfers simultaneously instead of serially. It will do up to 50 transfers at the same time and as soon as one of them has completed, the next one will be kicked off.</p>
+<p>For cases where you want to download many files from different sources and a few of them might be slow, a few fast, this can speed things up tremendously.</p>
+<p>If 50 parallel transfer is wrong for you, the <code>--parallel-max</code> option is there to allow you to change that as well.</p>
+<h3 id="parallel-transfer-progress-meter">Parallel transfer progress meter</h3>
+<p>Naturally, the ordinary progress meter display that shows file transfer progress for a single transfer isn’t that useful for parallel transfers so when curl performs parallel transfers, it will show a different progress meter that displays information about all the current ongoing transfers in a single line.</p>

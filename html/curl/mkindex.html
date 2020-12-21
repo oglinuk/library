@@ -1,0 +1,73 @@
+<p>#!/usr/bin/perl # Build an index of words in the file index-words that are found in the text. # Words are compared case insensitively except for those starting with a dash # (i.e. program option names). “Words” may actually be phrases consisting of # more than one word separated by a space. The word as written in the index is # as found in the file (i.e. using that case).</p>
+<p>use feature “fc”;</p>
+<h1 id="return-the-case-folded-keyword-unless-it-appears-to-be-an-option-string">Return the case-folded keyword UNLESS it appears to be an option string</h1>
+<h1 id="in-which-case-return-it-as-is.-this-makes-word-lookups-case-insensitive">in which case return it as-is. This makes word lookups case-insensitive</h1>
+<h1 id="but-option-name-lookups-case-sensitive.">but option name lookups case-sensitive.</h1>
+<p>sub folded { return $<em>[0] if <span class="math inline"><em></em><sub>[</sub>0]= /<sup>−</sup>/; <em>r</em><em>e</em><em>t</em><em>u</em><em>r</em><em>n</em><em>f</em><em>c</em>(</span></em>[0]); }</p>
+<h1 id="get-all-markdown-files-as-arguments">get all markdown files as arguments</h1>
+<p>my <span class="citation" data-cites="files">@files</span>=<span class="citation" data-cites="ARGV">@ARGV</span>;</p>
+<p>open(F, “&lt;index-words”) || die “no words”; while(<F>) { chomp; my $w = <span class="math inline"><em></em><sub>;</sub><em>i</em><em>f</em>(</span>w =~ /[ .]/) { # word with spaces or periods push <span class="citation" data-cites="lwords">@lwords</span>, folded($w); } <span class="math inline">$index{folded($</span>w)}=$w; } close(F);</p>
+<p>sub urlify { my ($fname, $section)=<span class="citation" data-cites="_">@_</span>;</p>
+<pre><code>$section =~ tr/[A-Z]/[a-z]/;
+
+# remove dashes amd slashes from like option names
+$section =~ s/^[-\.]+//g;
+
+# but replace spaces with dashes
+$section =~ s/ +/-/g;
+
+return &quot;$fname#$section&quot;;</code></pre>
+<p>}</p>
+<p>sub single { my ($fname)=<span class="citation" data-cites="_">@_</span>; my $depth; my $section; my $url;</p>
+<pre><code>open(F, &quot;&lt;$fname&quot;);
+while(&lt;F&gt;) {
+    chomp;
+    my $l=$_;
+    if($_ =~ /^(#[\#]*) (.*)/) {
+        $depth = $1;
+        $section = $2;
+        $url=urlify($fname, $section);
+        # print &quot;$fname / \&quot;$2\&quot;\n&quot;;
+
+        $l = $section; # use this too
+    }
+
+    my @words = split(/[ \(\)]+/, $_);
+    for my $w (@words) {
+        $w =~ s/[,\.\`\&#39;]//g;
+        $w = folded($w);
+        if($index{$w}) {
+            if(!$word{$w}{$fname}) {
+                $word{$w}{$fname}++;
+                $all{$w} .= ($all{$w}?&quot;, &quot;:&quot;&quot;).&quot;[$section]($url)&quot;;
+            }
+        }
+    }
+    # check longer words
+    foreach my $w (@lwords) {
+        if(folded($l) =~ /$w/) {
+            if(!$word{$w}{$fname}) {
+                #print &quot; $w ($url)\n&quot;;
+                $word{$w}{$fname}++;
+                $all{$w} .= ($all{$w}?&quot;, &quot;:&quot;&quot;).&quot;[$section]($url)&quot;;
+            }
+        }
+    }
+}
+close(F);</code></pre>
+<p>}</p>
+<p>for my <span class="math inline">$f (@files) {  single($</span>f); }</p>
+<p>print “# Index”;</p>
+<p>sub sorting { my ($s) = <span class="citation" data-cites="_">@_</span>; <span class="math inline"><em>s</em> = <em>u</em><em>c</em>(</span>s); # first uppercase $s =~ s/<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>+//; # remove initial junk return $s; }</p>
+<p>sub byname { return sorting(<span class="math inline"><em>a</em>)<em>c</em><em>m</em><em>p</em><em>s</em><em>o</em><em>r</em><em>t</em><em>i</em><em>n</em><em>g</em>(</span>b); }</p>
+<p>my %letter;</p>
+<p>foreach my $w (sort byname keys %all) { my <span class="math inline"><em>l</em> = <em>s</em><em>u</em><em>b</em><em>s</em><em>t</em><em>r</em>(<em>s</em><em>o</em><em>r</em><em>t</em><em>i</em><em>n</em><em>g</em>(</span>w), 0, 1); if(!<span class="math inline">$letter{$</span>l}) { <span class="math inline">$letter{$</span>l}++; print “## $l”; }</p>
+<pre><code>printf &quot; - &quot;.$index{$w}.&quot;: &quot;;
+print $all{$w}.&quot;\n&quot;;</code></pre>
+<p>}</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>-<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>

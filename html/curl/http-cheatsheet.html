@@ -1,0 +1,85 @@
+<h1 id="curl-http-cheat-sheet">curl HTTP cheat sheet</h1>
+<p><a href="https://curl.github.io/curl-cheat-sheet/http-sheet.html">online here</a></p>
+<table>
+<thead>
+<tr class="header">
+<th>Verbose</th>
+<th>Hide progress</th>
+<th>extra info</th>
+<th>Write output</th>
+<th>Timeout</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>-v</td>
+<td>-s</td>
+<td>-w “format”</td>
+<td>-O</td>
+<td>-m <secs></td>
+</tr>
+<tr class="even">
+<td>–trace-ascii <file></td>
+<td></td>
+<td></td>
+<td>-o <file></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>POST</strong></td>
+<td><strong>multipart</strong></td>
+<td><strong>PUT</strong></td>
+<td><strong>HEAD</strong></td>
+<td><strong>custom</strong></td>
+</tr>
+<tr class="even">
+<td>-d “string”</td>
+<td>-F name=value</td>
+<td>-T <file></td>
+<td>-I</td>
+<td>-X “METHOD”</td>
+</tr>
+<tr class="odd">
+<td>-d <span class="citation" data-cites="file">@file</span></td>
+<td>-F name=<span class="citation" data-cites="file">@file</span></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>Basic auth</strong></td>
+<td><strong>read cookies</strong></td>
+<td><strong>write cookies</strong></td>
+<td><strong>send cookies</strong></td>
+<td><strong>user-agent</strong></td>
+</tr>
+<tr class="odd">
+<td>-u user:password</td>
+<td>-b <file></td>
+<td>-c <file></td>
+<td>-b “c=1; d=2”</td>
+<td>-A “string”</td>
+</tr>
+<tr class="even">
+<td><strong>Use proxy</strong></td>
+<td><strong>Headers, add/remove</strong></td>
+<td><strong>follow redirs</strong></td>
+<td><strong>gzip</strong></td>
+<td><strong>insecure</strong></td>
+</tr>
+<tr class="odd">
+<td>-x <host:port></td>
+<td>-H “name: value”</td>
+<td>-L</td>
+<td>–compressed</td>
+<td>-k</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>-H “name:”</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>

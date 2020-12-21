@@ -1,0 +1,15 @@
+<h1 id="alternative-services">Alternative Services</h1>
+<p>(This feature is marked <strong>experimental</strong> as of this time and needs to be explicitly enabled in the build.)</p>
+<h2 id="alternatives">Alternatives</h2>
+<p><a href="https://www.rfc-editor.org/rfc/rfc7838.txt">RFC 7838</a> defines a HTTP header which lets a server tell a client that there is one or more <em>alternatives</em> for that server at “another place” with the use of the <code>Alt-Svc:</code> response ehader.</p>
+<p>The <em>alternatives</em> the server suggests can include a server running on another port on the same host, on another completely different host name and it can even perhaps offer the service over another protocol.</p>
+<h2 id="enable">Enable</h2>
+<p>To make curl consider offered alternatives, tell curl to use a specific alt-svc cache file like this:</p>
+<pre><code>curl --alt-svc altcache.txt https://example.com/</code></pre>
+<p>… then curl will load existing alternative service entries from the file at start-up and consider those when doing HTTP requests, and if the servers sends new or updated <code>Alt-Svc:</code> headers, curl will store those in the cache at exit.</p>
+<h2 id="the-alt-svc-cache">The alt-svc cache</h2>
+<p>The alt-svc cache is very similar to a cookie jar. It is a text based file that stores one alternative per line and each entry also has an expiry time so for which duration that particular alternative is valid.</p>
+<h2 id="https-only">HTTPS only</h2>
+<p><code>Alt-Svc:</code> is only trusted and parsed from servers when connected to over HTTPS.</p>
+<h2 id="http3">HTTP/3</h2>
+<p>The use of <code>Alt-Svc:</code> headers is as of August 2019 the only defined way to bootstrap a client and server into using HTTP/3. The server then hints to the client over HTTP/1 or HTTP/2 that it also is available over HTTP/3 and then curl can connect to it using HTTP/3 in the subsequent request if the alt-svc cache says so.</p>

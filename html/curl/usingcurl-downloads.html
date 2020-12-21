@@ -1,0 +1,123 @@
+<h2 id="downloads">Downloads</h2>
+<p>“Download” means getting data from a server on a network, and the server is then clearly considered to be “above” you. This is loading data down from the server onto your machine where you are running curl.</p>
+<p>Downloading is probably the most common use case for curl—retrieving the specific data pointed to by a URL onto your machine.</p>
+<h3 id="what-exactly-is-downloading">What exactly is downloading?</h3>
+<p>You specify the resource to download by giving curl a URL. curl defaults to downloading a URL unless told otherwise, and the URL identifies what to download. In this example the URL to download is “http://example.com”:</p>
+<pre><code>curl http://example.com</code></pre>
+<p>The URL is broken down into its individual components (<a href="cmdline-urls.md">as explained elsewhere</a>), the correct server is contacted and is then asked to deliver the specific resource—often a file. The server then delivers the data, or it refuses or perhaps the client asked for the wrong data and then that data is delivered.</p>
+<p>A request for a resource is protocol-specific so a FTP:// URL works differently than an HTTP:// URL or an SFTP:// URL.</p>
+<p>A URL without a path part, that is a URL that has a host name part only (like the “http://example.com” example above) will get a slash (‘/’) appended to it internally and then that is the resource curl will ask for from the server.</p>
+<p>If you specify multiple URLs on the command line, curl will download each URL one by one. It will not start the second transfer until the first one is complete, etc.</p>
+<h3 id="storing-downloads">Storing downloads</h3>
+<p>If you try the example download as in the previous section, you will notice that curl will output the downloaded data to stdout unless told to do something else. Outputting data to stdout is really useful when you want to pipe it into another program or similar, but it is not always the optimal way to deal with your downloads.</p>
+<p>Give curl a specific file name to save the download in with <code>-o [filename]</code> (with <code>--output</code> as the long version of the option), where filename is either just a file name, a relative path to a file name or a full path to the file.</p>
+<p>Also note that you can put the <code>-o</code> before or after the URL; it makes no difference:</p>
+<pre><code>curl -o output.html http://example.com/
+curl -o /tmp/index.html http://example.com/
+curl http://example.com -o ../../folder/savethis.html</code></pre>
+<p>This is, of course, not limited to http:// URLs but works the same way no matter which type of URL you download:</p>
+<pre><code>curl -o file.txt ftp://example.com/path/to/file-name.ext</code></pre>
+<p>If you ask curl to send the output to the terminal, it attempts to detect and prevent binary data from being sent there since that can seriously mess up your terminal (sometimes to the point where it basically stops working). You can override curl’s binary-output-prevention and force the output to get sent to stdout by using <code>-o -</code>.</p>
+<p>curl has several other ways to store and name the downloaded data. Details follow.</p>
+<h3 id="download-to-a-file-named-by-the-url">Download to a file named by the URL</h3>
+<p>Many URLs, however, already contain the file name part in the rightmost end. curl lets you use that as a shortcut so you do not have to repeat it with <code>-o</code>. So instead of:</p>
+<pre><code>curl -o file.html http://example.com/file.html</code></pre>
+<p>You can save the remove URL resource into the local file ‘file.html’ with this:</p>
+<pre><code>curl -O http://example.com/file.html</code></pre>
+<p>This is the <code>-O</code> (uppercase letter o) option, or <code>--remote-name</code> for the long name version. The -O option selects the local file name to use by picking the file name part of the URL that you provide. This is important. You specify the URL and curl picks the name from this data. If the site redirects curl further (and if you tell curl to follow redirects), it does not change the file name curl will use for storing this.</p>
+<h3 id="get-the-target-file-name-from-the-server">Get the target file name from the server</h3>
+<p>HTTP servers have the option to provide a header named <code>Content-Disposition:</code> in responses. That header may contain a suggested file name for the contents delivered, and curl can be told to use that hint to name its local file. The <code>-J / --remote-header-name</code> enables this. If you also use the <code>-O</code> option, it makes curl use the file name from the URL by default and only <em>if</em> there’s actually a valid Content-Disposition header available, it switches to saving using that name.</p>
+<p>-J has some problems and risks associated with it that users need to be aware of:</p>
+<ol class="incremental" type="1">
+<li><p>It will only use the rightmost part of the suggested file name, so any path or directories the server suggests will be stripped out.</p></li>
+<li><p>Since the file name is entirely selected by the server, curl will, of course, overwrite any preexisting local file in your current directory if the server happens to provide such a file name.</p></li>
+<li><p>File name encoding and character sets issues. curl does not decode the name in any way, so you may end up with a URL-encoded file name where a browser would otherwise decode it to something more readable using a sensible character set.</p></li>
+</ol>
+<h3 id="html-and-charsets">HTML and charsets</h3>
+<p>curl will download the exact binary data that the server sends. This might be of importance to you in case, for example, you download a HTML page or other text data that uses a certain character encoding that your browser then displays as expected. curl will then not translate the arriving data.</p>
+<p>A common example where this causes some surprising results is when a user downloads a web page with something like:</p>
+<pre><code>curl https://example.com/ -o storage.html</code></pre>
+<p>…and when inspecting the <code>storage.html</code> file after the fact, the user realizes that one or more characters look funny or downright wrong. This might occur because the server sent the characters using charset X, while your editor and environment use charset Y. In an ideal world, we would all use UTF-8 everywhere but unfortunately, that is still not the case.</p>
+<p>A common work-around for this issue that works decently is to use the common <code>iconv</code> utility to translate a text file to and from different charsets.</p>
+<h3 id="compression">Compression</h3>
+<p>curl allows you to ask HTTP and HTTPS servers to provide compressed versions of the data and then perform automatic decompression of it on arrival. In situations where bandwidth is more limited than CPU this will help you receive more data in a shorter amount of time.</p>
+<p>HTTP compression can be done using two different mechanisms, one which might be considered “The Right Way” and the other that is the way that everyone actually uses and is the widespread and popular way to do it. The common way to compress HTTP content is using the <strong>Content-Encoding</strong> header. You ask curl to use this with the <code>--compressed</code> option:</p>
+<pre><code>curl --compressed http://example.com/</code></pre>
+<p>With this option enabled (and if the server supports it) it delivers the data in a compressed way and curl will decompress it before saving it or sending it to stdout. This usually means that as a user you do not really see or experience the compression other than possibly noticing a faster transfer.</p>
+<p>The <code>--compressed</code> option asks for Content-Encoding compression using one of the supported compression algorithms. There’s also the rarer <strong>Transfer-Encoding</strong> method, which is the header that was created for this automated method but was never really widely adopted. You can tell curl to ask for Transfer-Encoded compression with <code>--tr-encoding</code>:</p>
+<pre><code>curl --tr-encoding http://example.com/</code></pre>
+<p>In theory, there’s nothing that prevents you from using both in the same command line, although in practice, you may then experience that some servers get a little confused when ask to compress in two different ways. It’s generally safer to just pick one.</p>
+<h3 id="shell-redirects">Shell redirects</h3>
+<p>When you invoke curl from a shell or some other command-line prompt system, that environment generally provides you with a set of output redirection abilities. In most Linux and Unix shells and with Windows’ command prompts, you direct stdout to a file with <code>&gt; filename</code>. Using this, of course, makes the use of -o or -O superfluous.</p>
+<pre><code>curl http://example.com/ &gt; example.html</code></pre>
+<p>Redirecting output to a file redirects all output from curl to that file, so even if you ask to transfer more than one URL to stdout, redirecting the output will get all the URLs’ output stored in that single file.</p>
+<pre><code>curl http://example.com/1 http://example.com/2 &gt; files</code></pre>
+<p>Unix shells usually allow you to redirect the <em>stderr</em> stream separately. The stderr stream is usually a stream that also gets shown in the terminal, but you can redirect it separately from the stdout stream. The stdout stream is for the data while stderr is metadata and errors, etc., that are not data. You can redirect stderr with <code>2&gt;file</code> like this:</p>
+<pre><code>curl http://example.com &gt; files.html 2&gt;errors</code></pre>
+<h3 id="multiple-downloads">Multiple downloads</h3>
+<p>As curl can be told to download many URLs in a single command line, there are, of course, times when you want to store these downloads in nicely named local files.</p>
+<p>The key to understanding this is that each download URL needs its own “storage instruction”. Without said “storage instruction”, curl will default to sending the data to stdout. If you ask for two URLs and only tell curl where to save the first URL, the second one is sent to stdout. Like this:</p>
+<pre><code>curl -o one.html http://example.com/1 http://example.com/2</code></pre>
+<p>The “storage instructions” are read and handled in the same order as the download URLs so they do not have to be next to the URL in any way. You can round up all the output options first, last or interleaved with the URLs. You choose.</p>
+<p>These examples all work the same way:</p>
+<pre><code>curl -o 1.txt -o 2.txt http://example.com/1 http://example.com/2
+curl http://example.com/1 http://example.com/2 -o 1.txt -o 2.txt
+curl -o 1.txt http://example.com/1 http://example.com/2 -o 2.txt
+curl -o 1.txt http://example.com/1 -o 2.txt http://example.com/2</code></pre>
+<p>The <code>-O</code> is similarly just an instruction for a single download so if you download multiple URLs, use more of them:</p>
+<pre><code>curl -O -O http://example.com/1 http://example.com/2</code></pre>
+<h3 id="use-the-urls-file-name-part-for-all-urls">Use the URL’s file name part for all URLs</h3>
+<p>As a reaction to adding a hundred <code>-O</code> options when using a hundred URLs, we introduced an option called <code>--remote-name-all</code>. This makes <code>-O</code> the default operation for all given URLs. You can still provide individual “storage instructions” for URLs but if you leave one out for a URL that gets downloaded, the default action is then switched from stdout to -O style.</p>
+<h3 id="my-browser-shows-something-else">“My browser shows something else”</h3>
+<p>A common use case is using curl to get a URL that you can get in your browser when you paste the URL in the browser’s address bar.</p>
+<p>A browser getting a URL as input does so much more and in so many different ways than curl that what curl shows in your terminal output is probably not at all what you see in your browser window.</p>
+<h4 id="client-differences">Client differences</h4>
+<p>Curl only gets exactly what you ask it to get and it never parses the actual content—the data—that the server delivers. A browser gets data and it activates different parsers depending on what kind of content it thinks it gets. For example, if the data is HTML it will parse it to display a web page and possibly download other sub resources such as images, JavaScript and CSS files. When curl downloads a HTML it will just get that single HTML resource, even if it, when parsed by a browser, would trigger a whole busload of more downloads. If you want curl to download any sub-resources as well, you need to pass those URLs to curl and ask it to get those, just like any other URLs.</p>
+<p>Clients also differ in how they send their requests, and some aspects of a request for a resource include, for example, format preferences, asking for compressed data, or just telling the server from which previous page we are “coming from”. curl’s requests will differ a little or a lot from how your browser sends its requests.</p>
+<h4 id="server-differences">Server differences</h4>
+<p>The server that receives the request and delivers data is often setup to act in certain ways depending on what kind of client it thinks communicates with it. Sometimes it is as innocent as trying to deliver the best content for the client, sometimes it is to hide some content for some clients or even to try to work around known problems in specific browsers. Then there’s also, of course, various kind of login systems that might rely on HTTP authentication or cookies or the client being from the pre-validated IP address range.</p>
+<p>Sometimes getting the same response from a server using curl as the response you get with a browser ends up really hard work. Users then typically record their browser sessions with the browser’s networking tools and then compare that recording with recorded data from curl’s <code>--trace-ascii</code> option and proceed to modify curl’s requests (often with <code>-H / --header</code>) until the server starts to respond the same to both.</p>
+<p>This type of work can be both time consuming and tedious. You should always do this with permission from the server owners or admins.</p>
+<h4 id="intermediaries-fiddlings">Intermediaries’ fiddlings</h4>
+<p>Intermediaries are proxies, explicit or implicit ones. Some environments will force you to use one or you may choose to use one for various reasons, but there are also the transparent ones that will intercept your network traffic silently and proxy it for you no matter what you want.</p>
+<p>Proxies are “middle men” that terminate the traffic and then act on your behalf to the remote server. This can introduce all sorts of explicit filtering and “saving” you from certain content or even “protecting” the remote server from what data you try to send to it, but even more so it introduces another software’s view on how the protocol works and what the right things to do are.</p>
+<p>Interfering intermediaries are often the cause of lots of head aches and mysteries down to downright malicious modifications of content.</p>
+<p>We strongly encourage you to use HTTPS or other means to verify that the contents you are downloading or uploading are really the data that the remote server has sent to you and that your precious bytes end up verbatim at the intended destination.</p>
+<h3 id="rate-limiting">Rate limiting</h3>
+<p>When curl transfers data, it will attempt to do that as fast as possible. It goes for both uploads and downloads. Exactly how fast that will be depends on several factors, including your computer’s ability, your own network connection’s bandwidth, the load on the remote server you are transferring to/from and the latency to that server. And your curl transfers are also likely to compete with other transfers on the networks the data travels over, from other users or just other apps by the same user.</p>
+<p>In many setups, however, you will find that you can more or less saturate your own network connection with a single curl command line. If you have a 10 megabit per second connection to the Internet, chances are curl can use all of those 10 megabits to transfer data.</p>
+<p>For most use cases, using as much bandwidth as possible is a good thing. It makes the transfer faster, it makes the curl command complete sooner and it will make the transfer use resources from the server for a shorter period of time.</p>
+<p>Sometimes you will, however, find that having curl starve out other network functions on your local network connection is inconvenient. In these situations you may want to tell curl to slow down so that other network users get a better chance to get their data through as well. With <code>--limit-rate [speed]</code> you can tell curl to not go faster than the given number of bytes per second. The rate limit value can be given with a letter suffix using one of K, M and G for kilobytes, megabytes and gigabytes.</p>
+<p>To make curl not download data any faster than 200 kilobytes per second:</p>
+<pre><code>curl https://example.com/ --limit-rate 200K</code></pre>
+<p>The given limit is the maximum <em>average speed</em> allowed, counted during the entire transfer. It means that curl might use higher transfer speeds in short bursts, but over time it uses no more than the given rate.</p>
+<p>Also note that curl never knows what the maximum possible speed is—it will simply go as fast as it can and is allowed. You may know your connection’s maximum speed, but curl does not.</p>
+<h3 id="maximum-filesize">Maximum filesize</h3>
+<p>When you want to make sure your curl command line will not try to download a too-large file, you can instruct curl to stop before doing that, if it knows the size before the transfer starts! Maybe that would use too much bandwidth, take too long time or you do not have enough space on your hard drive:</p>
+<pre><code>curl --max-filesize 100000 https://example.com/</code></pre>
+<p>Give curl the largest download you will accept in number of bytes and if curl can figure out the size before the transfer starts it will abort before trying to download something larger.</p>
+<p>There are many situations in which curl cannot figure out the size at the time the transfer starts and this option will not affect those transfers, even if they may end up larger than the specified amount.</p>
+<h3 id="metalink">Metalink</h3>
+<p>Metalink is a file description standard that tells a client multiple locations where the same content resides. A client can then opt to transfer that content from one or many of those sources.</p>
+<p>curl supports the Metalink format when asked to with the <code>--metalink</code> option. Then given URL should then point to a Metalink file. Such as:</p>
+<pre><code>curl --metalink https://example.com/example.metalink</code></pre>
+<p>curl will make use of the mirrors listed within the file for failover if there are errors (such as the file or server not being available). It will also verify the hash of the file after the download completes. The Metalink file itself is downloaded and processed in memory and not stored in the local file system.</p>
+<h3 id="storing-metadata-in-file-system">Storing metadata in file system</h3>
+<p>When saving a download to a file with curl, the <code>--xattr</code> option tells curl to also store certain file metadata in “extended file attributes”. These extended attributes are basically standardized name/value pairs stored in the file system, assuming one of the supported file systems and operating systems are used.</p>
+<p>Currently, the URL is stored in the <code>xdg.origin.url</code> attribute and, for HTTP, the content type is stored in the <code>mime_type</code> attribute. If the file system does not support extended attributes when this option is set, a warning is issued.</p>
+<h3 id="raw">Raw</h3>
+<p>When <code>--raw</code> is used, it disables all internal HTTP decoding of content or transfer encodings and instead makes curl passed on unaltered, raw, data.</p>
+<p>This is typically used if you are writing some sort of middle software and you want to pass on the content to perhaps another HTTP client and allow that to do the decoding instead.</p>
+<h3 id="retrying-failed-attempts">Retrying failed attempts</h3>
+<p>Normally curl will only make a single attempt to perform a transfer and return an error if not successful. Using the <code>--retry</code> option you can tell curl to retry certain failed transfers.</p>
+<p>If a transient error is returned when curl tries to perform a transfer, it will retry this number of times before giving up. Setting the number to 0 makes curl do no retries (which is the default). Transient error means either: a timeout, an FTP 4xx response code or an HTTP 5xx response code.</p>
+<p>When curl is about to retry a transfer, it will first wait one second and then for all forthcoming retries it will double the waiting time until it reaches 10 minutes which then will be the delay between the rest of the retries. Using <code>--retry-delay</code> you can disable this exponential backoff algorithm and set your own delay between the attempts. With <code>--retry-max-time</code> you cap the total time allowed for retries. The <code>--max-time</code> option will still specify the longest time a single of these transfers is allowed to spend.</p>
+<h3 id="resuming-and-ranges">Resuming and ranges</h3>
+<p>Resuming a download means first checking the size of what is already present locally and then asking the server to send the rest of it so it can be appended. curl also allows resuming the transfer at a custom point without actually having anything already locally present.</p>
+<p>curl supports resumed downloads on several protocols. Tell it where to start the transfer with the <code>-C, --continue-at</code> option that takes either a plain numerical byte counter offset where to start or the string <code>-</code> that asks curl to figure it out itself based on what it knows. When using <code>-</code>, curl will use the destination file name to figure out how much data that is already present locally and ask use that as an offset when asking for more data from the server.</p>
+<p>To start downloading an FTP file from byte offset 100:</p>
+<pre><code>curl --continue-at 100 ftp://example.com/bigfile</code></pre>
+<p>Continue downloading a previously interrupted download:</p>
+<pre><code>curl --continue-at - http://example.com/bigfile -O</code></pre>
+<p>If you instead just want a specific byte range from the remote resource transferred, you can ask for only that. For example, when you only want 1000 bytes from offset 100 to avoid having to download the entire huge remote file:</p>
+<pre><code>curl --range 100-1099 http://example.com/bigfile</code></pre>

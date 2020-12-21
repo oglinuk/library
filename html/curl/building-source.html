@@ -1,0 +1,75 @@
+<h1 id="build-from-source">Build from source</h1>
+<p>The curl project creates source code that can be built to produce the two products curl and libcurl. The conversion from source code to binaries is often referred to as “building”. You build curl and libcurl from source.</p>
+<p>The curl project does not provide any built binaries at all, it only ships the source code. The binaries which can be found on the download page of the curl web and installed from other places on the Internet are all built and provided to the world by other friendly people and organizations.</p>
+<p>The source code consists of a large number of files containing C code. Generally speaking, the same set of files are used to build binaries for all platforms and computer architectures that curl supports. curl can be built and run on a vast number of platforms. If you use a rare operating system yourself, chances are that building curl from source is the easiest or perhaps the only way to get curl.</p>
+<p>Making it easy to build curl is a priority to the curl project, although we do not always necessarily succeed!</p>
+<h2 id="git-vs-tarballs">git vs tarballs</h2>
+<p>When release tarballs are created, a few files are generated and included in the final release file. Those generated files are not present in the git repository, because they are generated and there is no need to store them in git.</p>
+<p>So, if you want to build curl from git you need to generate some of those files yourself before you can build. On Linux and Unix-like systems, do this by running <code>./buildconf</code> and on Windows you run <code>buildconf.bat</code>.</p>
+<h2 id="on-linux-and-unix-like-systems">On Linux and Unix-like systems</h2>
+<p>There are two distinctly different ways to build curl on Linux and other Unix-like systems. There’s the one using the configure script and there’s the CMake approach.</p>
+<p>There are two different build environments to cater for people’s different opinions and tastes. The configure based build is arguably the more mature and more covering build system and should probably be considered the default one.</p>
+<h2 id="autotools">Autotools</h2>
+<p>The “Autotools” is a collection of different tools that used together generate the <code>configure</code> script. The configure script is run by the user who wants to build curl and it does a whole bunch of things:</p>
+<ul class="incremental">
+<li><p>it checks for features and functions present in your system</p></li>
+<li><p>it offers command-line options so that you as a builder can decide what to enable and disable in the build. Features and protocols, etc., can be toggled on/off. Or even compiler warning levels and more.</p></li>
+<li><p>it offers command-line options to let the builder point to specific installation paths for various third-party dependencies that curl can be built to use.</p></li>
+<li><p>specifies on which file path the generated installation should be placed when ultimately the build is made and “make install” is invoked</p></li>
+</ul>
+<p>In the most basic usage, just running <code>./configure</code> in the source directory is enough. When the script completes, it outputs a summary of what options it has detected/enabled and what features that are still disabled, some of them possibly because it failed to detect the presence of necessary third-party dependencies that are needed for those functions to work. If the summary is not what you expected it to be, invoke configure again with new options or with the previously used options adjusted.</p>
+<p>After configure has completed you invoke <code>make</code> to build the entire thing and then finally <code>make install</code> to install curl, libcurl and associated things. <code>make install</code> requires that you have the correct rights in your system to create and write files in the installation directory or you will get some errors.</p>
+<h3 id="cross-compiling">cross-compiling</h3>
+<p>Cross-compiling means that you build the source on one architecture but the output is created to be run on a different one. For example, you could build the source on a Linux machine but have the output work to run on a Windows machine.</p>
+<p>For cross-compiling to work, you need a dedicated compiler and build system setup for the particular target system for which you want to build. How to get and install that system is not covered in this book.</p>
+<p>Once you have a cross compiler, you can instruct configure to use that compiler instead of the “native” compiler when it builds curl so that the end result then can be moved over and used on the other machine.</p>
+<h3 id="static-linking">static linking</h3>
+<p>By default, configure will setup the build files so that the following ‘make’ command will create both shared and static versions of libcurl. You can change that with the <code>--disable-static</code> or <code>--disable-shared</code> options to configure.</p>
+<p>If you instead want to build with static versions of third party libraries instead of shared libraries, you need to prepare yourself for an uphill battle. curl’s configure script is focused on setting up and building with shared libraries.</p>
+<p>One of the differences between linking with a static library compared to linking with a shared one is in how shared libraries handle their own dependencies while static ones do not. In order to link with library xyz as a shared library, it is as bsically a matter of adding <code>-lxyz</code> to the linker command line no matter which other libraries xyz itself was built to use, but if that xyz is instead a static library we also need to specify each of xyz’s dependencies on the linker command line. curl’s configure typically cannot keep up with or know all possible dependencies for all the libraries it can be made to build with, so users wanting to build with static libs mostly need to provide that list of libraries to link with.</p>
+<h3 id="select-tls-backend">Select TLS backend</h3>
+<p>The configure based build offers the user to select from a wide variety of different TLS libraries when building. You select them by using the correct command line options.</p>
+<p>The default OpenSSL configure check will also detect and use BoringSSL or libressl.</p>
+<ul class="incremental">
+<li>BearTLS: <code>--without-ssl --with-bearssl</code>.</li>
+<li>BoringSSL: - by default</li>
+<li>GnuTLS: <code>--without-ssl --with-gnutls</code>.</li>
+<li>MesaLink: <code>--without-ssl --with-mesalink</code>.</li>
+<li>NSS: <code>--without-ssl --with-nss</code></li>
+<li>OpenSSL: - by default</li>
+<li>PolarSSL: <code>--without-ssl --with-polarssl</code></li>
+<li>Wolfssl: <code>--without-ssl --with-wolfssl</code></li>
+<li>libressl: - by default</li>
+<li>mbedTLS: <code>--without-ssl --with-mbedtls</code></li>
+<li>schannel: <code>--without-ssl --with-winssl</code></li>
+<li>secure transport: <code>--with-winssl --with-darwinssl</code></li>
+</ul>
+<p>All the <code>--with-*</code> options also allow you to provide the install prefix so that configure will search for the specific library where you tell it to.</p>
+<h2 id="cmake">CMake</h2>
+<p>CMake is an alternative build method that works on most modern platforms, including Windows. Using this method you first need to have cmake installed on your build machine, invoke cmake to generate the build files and then build. With cmake’s <code>-G</code> flag, you select which build system to generate files for. See <code>cmake --help</code> for the list of “generators” your cmake installation supports.</p>
+<p>On the cmake command line, in the first argument, you specify where to find the cmake source files. Which is <code>.</code> (a single dot) if in the same directory.</p>
+<p>To build on Linux using plain make with CmakeLists.txt in the same directory, you can do:</p>
+<pre><code>cmake -G &quot;Unix Makefiles&quot; .
+make</code></pre>
+<p>Or rely on the fact that unix makefiles is the default there:</p>
+<pre><code>cmake .
+make</code></pre>
+<p>To create a subdir for the build and run make in there:</p>
+<pre><code>mkdir build
+cd build
+cmake ..
+make</code></pre>
+<h2 id="on-windows">On Windows</h2>
+<p>You can build curl on Windows in several different ways. We recommend using the MSVC compiler from Microsoft or the free and open source mingw compiler. The build process is however not limited to these.</p>
+<h3 id="nmake">nmake</h3>
+<p>Build with MSVC using the nmake utility like this:</p>
+<pre><code>cd winbuild</code></pre>
+<p>Decide what options to enable/disable in your build. The <code>BUILD.WINDOWS.txt</code> file details them all, but an example command line could look like this (split into several lines for readability):</p>
+<pre><code>nname WITH_SSL=dll WITH_NGHTTP2=dll ENABLE_IPV6=yes \
+WITH_ZLIB=dll MACHINE=x64 </code></pre>
+<h3 id="other-compilers">other compilers</h3>
+<p>TBD</p>
+<h2 id="on-other-systems">On other systems</h2>
+<p>TBD</p>
+<h2 id="porting-curl-to-non-supported-systems">Porting curl to non-supported systems</h2>
+<p>TBD</p>

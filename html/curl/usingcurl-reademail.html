@@ -1,0 +1,11 @@
+<h1 id="reading-email">Reading email</h1>
+<p>There are two dominant protocols on the Internet for reading/downloading email from servers (at least if we do not count web based reading), and they are IMAP and POP3. The former being the slightly more modern alternative. curl supports both.</p>
+<h2 id="pop3">POP3</h2>
+<p>To list message numbers and sizes:</p>
+<pre><code>curl pop3://mail.example.com/</code></pre>
+<p>To download message 1:</p>
+<pre><code>curl pop3://mail.example.com/1</code></pre>
+<p>To delete message 1:</p>
+<pre><code>curl --request DELE pop3://mail.example.com/1</code></pre>
+<h2 id="imap">IMAP</h2>
+<p>TBD</p>
