@@ -1,10 +1,8 @@
----
-title: Books
----
+# Library
 
-This is my library of books that are freely available under their respective
-permissive licenses. If you have books that you know of which aren't here
-please get in touch!
+This is my library of (digital) books that are freely available under
+their respective permissive licenses. If you have books that you know of
+which aren't here please get in touch!
 
 **Programming**
 
